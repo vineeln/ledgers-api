@@ -1,9 +1,10 @@
-import * as GQL from "type-graphql";
+import { User } from "../entities/user";
+import { Resolver, Query } from "type-graphql";
 
-@GQL.Resolver()
+@Resolver()
 export class HelloResolver {
-  @GQL.Query(returns => String)
+  @Query(() => String)
   hello() {
-    return "hello GQL world";
+    return "Welcome to neoledgers";
   }
 }

@@ -1,23 +1,81 @@
-
-import { __prod__ } from "./constants";
-
-import {} from "@mikro-orm/migrations";
-import orm from './orm'
-import graphql from './graphql'
-
+import path from "path";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import express from "express";
+import session from "express-session";
+import { createConnection } from "typeorm";
+import { createClient } from "redis";
+import connectRedis from "connect-redis";
+import { __COOKIE_NAME__, __prod__ } from "./app/app-constants";
+import { User } from "./entities/user";
+import { HelloResolver } from "./resolvers/hello-resolver";
+import { UserResolver } from "./resolvers/user-resolver";
+import cors from "cors";
 
 const main = async () => {
-  console.log("working dir:", __dirname);
-  console.log("Hello World");
+  console.log("start neoledgers");
+  const conn = await createConnection({
+    type: "postgres",
+    url: "postgresql://postgres:postgres@localhost:5432/ledgers_dev", //process.env.DATABASE_URL,
+    logging: true,
+    // synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
+    entities: [User],
+  });
 
-  //initialize ORM
-  await orm()
+  const app = express();
 
-  //initialize GraphQL
-  await graphql()
+  // configure cors: 
+  // can be done dynamically as well: 
+  //   https://expressjs.com/en/resources/middleware/cors.html#configuring-cors-w-dynamic-origin
+  app.use(
+    cors({
+      origin: "http://localhost:3001",
+      credentials: true,
+    })
+  );
 
+  console.log("connecting to redis client: ");
+  const redisClient = createClient({ legacyMode: true }); // { legacyMode: true } for v4
+  const redisStore = connectRedis(session);
+  await redisClient.connect().catch((err) => {
+    console.log("erroor");
+    console.error(err);
+  });
+
+  app.use(
+    session({
+      name: __COOKIE_NAME__,
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 180,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: __prod__,
+      },
+      store: new redisStore({
+        client: redisClient,
+        disableTouch: true,
+      }),
+      saveUninitialized: false,
+      secret: "keyboard cat",
+      resave: false,
+    })
+  );
+  const server = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [HelloResolver, UserResolver],
+      validate: false,
+    }),
+    context: ({ req, res }) => ({ req, res, redisClient }),
+  });
+
+  server.applyMiddleware({ app, cors:false });
+
+  app.listen(4000, () => {
+    console.log("server listening on: 4000");
+  });
 };
 
-main().catch((err) => {
-  console.error(err);
+main().catch((e) => {
+  console.error("main error:", e);
 });
