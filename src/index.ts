@@ -30,7 +30,7 @@ const main = async () => {
   //   https://expressjs.com/en/resources/middleware/cors.html#configuring-cors-w-dynamic-origin
   app.use(
     cors({
-      origin: "http://localhost:3001",
+      origin: "http://localhost:3000",
       credentials: true,
     })
   );

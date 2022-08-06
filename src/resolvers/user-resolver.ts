@@ -12,6 +12,7 @@ import {
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { RequestContext } from "../app/request-context";
+import { __COOKIE_NAME__ } from "../app/app-constants";
 
 @InputType()
 class RegisterUserInput {
@@ -68,7 +69,7 @@ export class UserResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: RequestContext) {
     console.log("session read:", req.session);
-    const userId = req.session.userId;
+    const userId = req.session.userId;  
     if (!userId) {
       return null;
     }
@@ -145,5 +146,20 @@ export class UserResolver {
     req.session!.userId = user.id;
     console.log("session save:", req.session);
     return { user };
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx(){req, res}: RequestContext): Promise<Boolean> {
+    res.clearCookie(__COOKIE_NAME__)
+    return new Promise<Boolean>(res=>{
+      req.session.destroy(err=>{
+        if(err) {
+          console.log("unable to destroy session",err)
+          res(false)
+          return
+        }
+        res(true)
+      })
+    })
   }
 }
