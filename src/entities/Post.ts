@@ -1,25 +1,23 @@
-import * as ORM from "@mikro-orm/core";
-import * as GQL from "type-graphql";
-import { v4 } from "uuid";
 import 'reflect-metadata'
-//import { CustomBaseEntity } from "./CustomBaseEntity";
+import { Field, ObjectType } from 'type-graphql';
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
-@GQL.ObjectType("Post")
-@ORM.Entity()
+@ObjectType("Post")
+@Entity()
 export class Post  {
-  @GQL.Field(() => String)
-  @ORM.PrimaryKey({ columnType: "text" })
-  uuid: string = v4();
+  @Field(() => String)
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-  @GQL.Field(()=>String)
-  @ORM.Property()
+  @Field(()=>String)
+  @CreateDateColumn()
   createdAt: Date = new Date();
 
-  @GQL.Field(()=>String)
-  @ORM.Property({ onUpdate: () => new Date() })
+  @Field(()=>String)
+  @UpdateDateColumn()
   updatedAt: Date = new Date();
 
-  @GQL.Field(() => String)
-  @ORM.Property({ columnType: "text" })
+  @Field(() => String)
+  @Column({ type: "text" })
   title!: string;
 }
