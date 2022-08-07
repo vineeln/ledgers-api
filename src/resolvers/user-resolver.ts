@@ -68,19 +68,22 @@ class UserResponse {
 export class UserResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: RequestContext) {
-    console.log("session read:", req.session);
+    
     const userId = req.session.userId;  
     if (!userId) {
+      console.log("session no active session:");
       return null;
     }
-
+    
+    console.log("session user found: ",userId);
     const user = await User.findOne({ where: { id: userId } });
     return user;
   }
 
   @Mutation(() => UserResponse)
   async register(
-    @Arg("userinfo") userinfo: RegisterUserInput
+    @Arg("userinfo") userinfo: RegisterUserInput,
+    @Ctx() { req }: RequestContext
   ): Promise<UserResponse> {
     console.log("reegister request");
     const errors = userinfo.validate();
@@ -121,6 +124,8 @@ export class UserResolver {
         };
       }
     }
+    req.session!.userId = user.id;
+    console.log("session save:", req.session);
     return { user };
   }
 
