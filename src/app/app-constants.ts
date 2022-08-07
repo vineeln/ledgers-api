@@ -1,4 +1,6 @@
 
 export const __prod__ = process.env.NODE_ENV === 'production'
 export const __COOKIE_NAME__ = "qid";
+export const __COOKIE_MAX_AGE__ = 1000 * 60 * 60 * 24 * 180; // 180days
 export const FORGET_PASSWORD_PREFIX = "forget-password:";
+export const __CORS_ALLOW_DOMAINS__ = "http://localhost:3000"

@@ -6,7 +6,7 @@ import session from "express-session";
 import { createConnection } from "typeorm";
 import { createClient } from "redis";
 import connectRedis from "connect-redis";
-import { __COOKIE_NAME__, __prod__ } from "./app/app-constants";
+import { __COOKIE_MAX_AGE__, __COOKIE_NAME__, __CORS_ALLOW_DOMAINS__, __prod__ } from "./app/app-constants";
 import { User } from "./entities/user";
 import { HelloResolver } from "./resolvers/hello-resolver";
 import { UserResolver } from "./resolvers/user-resolver";
@@ -30,7 +30,7 @@ const main = async () => {
   //   https://expressjs.com/en/resources/middleware/cors.html#configuring-cors-w-dynamic-origin
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: __CORS_ALLOW_DOMAINS__,
       credentials: true,
     })
   );
@@ -47,7 +47,7 @@ const main = async () => {
     session({
       name: __COOKIE_NAME__,
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 180,
+        maxAge: __COOKIE_MAX_AGE__,
         httpOnly: true,
         sameSite: "lax",
         secure: __prod__,
