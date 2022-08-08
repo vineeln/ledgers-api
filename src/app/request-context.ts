@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { RedisClientType } from "redis";
+import * as ioRedis from "ioredis";
 
 export type RequestContext = {
   req: Request;
   res: Response;
-  redis: RedisClientType;
+  redis: ioRedis.Redis;
 };

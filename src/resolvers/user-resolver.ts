@@ -13,6 +13,7 @@ import {
 import { getConnection } from "typeorm";
 import { RequestContext } from "../app/request-context";
 import { __COOKIE_NAME__ } from "../app/app-constants";
+import 'reflect-metadata'
 
 @InputType()
 class RegisterUserInput {

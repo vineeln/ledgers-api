@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import { Field, ObjectType } from 'type-graphql';
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
