@@ -3,7 +3,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, U
 
 @ObjectType("Post")
 @Entity()
-export class Post  {
+export class Post  extends BaseEntity {
   @Field(() => String)
   @PrimaryGeneratedColumn("uuid")
   id: string;
